@@ -1,0 +1,47 @@
+<html>
+ <head>
+  <script type="application/javascript">
+    async function digestMessage(message) {
+      const msgUint8 = new TextEncoder().encode(message);                           // encode as (utf-8) Uint8Array
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);           // hash the message
+      const hashArray = Array.from(new Uint8Array(hashBuffer));                     // convert buffer to byte array
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
+      return hashHex;
+    }
+    function draw() {
+      var canvas = document.getElementById("canvas");
+      if (canvas.getContext) {
+        var ctx = canvas.getContext("2d");
+        ctx.font = '18px serif';
+        ctx.strokeText('Hello wo🦐rld', 10, 50);
+        ctx.fillStyle = "rgb(200,0,0,0.5)";
+        ctx.fillRect (10, 10, 55, 50);
+        ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
+        ctx.fillRect (30, 30, 55, 50);
+        ctx.rotate(18);
+      }
+      var canvas = document.getElementById("canvas");
+      var dataURL = canvas.toDataURL();
+      var userAgent = navigator.userAgent;
+      var languages = navigator.languages.join();
+      console.log(dataURL);
+      digestMessage(dataURL)
+        .then(digestHex => document.getElementById("img_hash").textContent=digestHex);
+      digestMessage(userAgent)
+        .then(digesHex => document.getElementById("user_agent_hash").textContent=digesHex);
+      digestMessage(languages)
+        .then(digesHex => document.getElementById("language_hash").textContent=digesHex);
+      digestMessage(dataURL + " " + userAgent + " " + languages)
+        .then(digesHex => document.getElementById("uid").textContent=digesHex);
+
+   }
+   </script>
+ </head>
+ <body onload="draw();">
+   <canvas id="canvas" style="display:none;" width="150" height="150"></canvas>
+   IMG_HASH: <p id="img_hash"></p>
+   USER_AGENT_HASH: <p id="user_agent_hash"></p>
+   LANGUAGE_HASH: <p id="language_hash"></p>
+   YOUR_ID: <p id="uid" style="color:red;"></p>
+ </body>
+</html>
